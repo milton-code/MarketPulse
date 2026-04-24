@@ -1,0 +1,22 @@
+<resources>
+    <string name="app_name">MarketPulse</string>
+    <string name="sign_in">Sign in</string>
+    <string name="sign_up">Sign up</string>
+    <!--OnBoarding Screen-->
+    <string name="onboarding_first_page_title">Bienvenido a MarketPulse</string>
+    <string name="onboarding_first_page_description">La fuente mas confiable y precisa de capitalizaciones de mercado, precios e información sobre criptomonedas.</string>
+    <string name="onboarding_second_page_title">Realiza el seguimiento y gestión de tu portafolio de criptomonedas</string>
+    <string name="onboarding_second_page_description">Conoce como le va a tus inversiones en cualquier momento mediante el seguimiento de tus activos a través de una sencilla interfaz.</string>
+    <string name="onboarding_third_page_title">No te pierdas ninguna novedad</string>
+    <string name="onboarding_third_page_description">Recibe notificaciones sobre cambios en el mercado de criptomonedas para que puedas invertir de manera oportuna.</string>
+    <string name="onboarding_finish">Finish</string>
+    <!--ContinueSignUp Screen-->
+    <string name="continue_sign_up_title">Regístrate en MarketPulse</string>
+    <string name="continue_sign_up_ask">¿Ya tienes una cuenta?</string>
+    <!--ContinueSignIn Screen-->
+    <string name="continue_sign_in_title">Inicia sesión en MarketPulse</string>
+    <string name="continue_sign_in_ask">¿No tienes una cuenta?</string>
+    <string name="continuar_con_e_mail">Continuar con e-mail</string>
+    <string name="continuar_con_google">Continuar con Google</string>
+
+</resources>

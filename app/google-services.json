@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "905178019023",
+    "project_id": "marketpulse-5ce01",
+    "storage_bucket": "marketpulse-5ce01.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:905178019023:android:1bbc2ede6049b282b6b3ba",
+        "android_client_info": {
+          "package_name": "com.example.marketpulse"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAay9198hP0Tke8C_A5p52G6dgv_R_aoM0"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
