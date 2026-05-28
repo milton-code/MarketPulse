@@ -37,6 +37,7 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -74,7 +75,11 @@ fun EmailScreen(
     val context = LocalContext.current
     val density = LocalDensity.current
     val layoutDirection = LocalLayoutDirection.current
-    val imeVisible = WindowInsets.ime.getBottom(density) > 0
+
+    val imeInsets = WindowInsets.ime
+    val imeVisible by remember {
+        derivedStateOf { imeInsets.getBottom(density) > 0 }
+    }
 
     val screenState by viewModel.screenState.collectAsStateWithLifecycle()
     val emailState by viewModel.userEmail.collectAsStateWithLifecycle()
