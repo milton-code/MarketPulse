@@ -5,7 +5,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.marketpulse.domain.usecase.authentication.SignInUseCase
 import com.example.marketpulse.domain.usecase.authentication.SignUpUseCase
-import com.example.marketpulse.utils.Resource
+import com.example.marketpulse.core.Resource
 import kotlinx.coroutines.flow.MutableStateFlow
 import dagger.hilt.android.lifecycle.HiltViewModel
 import jakarta.inject.Inject

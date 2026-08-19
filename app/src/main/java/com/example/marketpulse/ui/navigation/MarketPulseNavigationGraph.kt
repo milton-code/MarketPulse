@@ -30,7 +30,7 @@ fun MarketPulseNavHost(
         startDestination = startDestination,
         modifier = modifier
     ) {
-        navigation(startDestination = NavigationDestination.Welcome.route, route = "auth_graph") {
+        navigation(startDestination = NavigationDestination.Welcome.route, route = NavigationDestination.AuthGraph.route) {
             composable(
                 route = NavigationDestination.Welcome.route,
                 exitTransition = {
@@ -153,6 +153,6 @@ fun MarketPulseNavHost(
 }
 
 /*val parentEntry = remember(backStackEntry) {
-                    navController.getBackStackEntry("auth_graph")
+                    navController.getBackStackEntry(NavigationDestination.AuthGraph.route)
                 }
                 val viewModel: EmailViewModel = hiltViewModel(parentEntry)*/

@@ -7,7 +7,6 @@ import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Spacer
@@ -37,6 +36,7 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -62,7 +62,7 @@ import androidx.navigation.NavHostController
 import com.example.marketpulse.R
 import com.example.marketpulse.ui.MarketPulseTopAppBar
 import com.example.marketpulse.ui.navigation.NavigationDestination
-import com.example.marketpulse.utils.Resource
+import com.example.marketpulse.core.Resource
 
 
 @Composable
@@ -71,32 +71,91 @@ fun EmailScreen(
     navController: NavHostController,
     viewModel: EmailViewModel
 ) {
-    val context = LocalContext.current
     val density = LocalDensity.current
-    val layoutDirection = LocalLayoutDirection.current
-    val imeVisible = WindowInsets.ime.getBottom(density) > 0
+    val imeInsets = WindowInsets.ime
+    val imeVisible by remember {
+        derivedStateOf { imeInsets.getBottom(density) > 0 }
+    }
 
     val screenState by viewModel.screenState.collectAsStateWithLifecycle()
     val emailState by viewModel.userEmail.collectAsStateWithLifecycle()
     val passwordState by viewModel.userPassword.collectAsStateWithLifecycle()
     var passwordVisibility by remember { mutableStateOf(false) }
-    var textFieldState by remember { mutableStateOf(true) }
+    var textFieldEnabled by remember { mutableStateOf(true) }
 
     val primaryButtonState by viewModel.primaryButtonState.collectAsStateWithLifecycle()
 
+    LaunchedEffect(primaryButtonState) {
+        textFieldEnabled = primaryButtonState !is Resource.Loading
+    }
+
+    EmailContentScreen(
+        modifier = modifier,
+        canNavigateBack = navController.previousBackStackEntry != null,
+        onBackClick = { navController.popBackStack() },
+        imeVisible = imeVisible,
+        screenState = screenState,
+        emailState = emailState,
+        onEmailValueChange = { viewModel.setUserEmail(it) },
+        passwordState = passwordState,
+        onPasswordValueChange = { viewModel.setUserPassword(it) },
+        passwordVisibility = passwordVisibility,
+        onPasswordVisibilityToggle = { passwordVisibility = !passwordVisibility },
+        textFieldEnabled = textFieldEnabled,
+        primaryButtonState = primaryButtonState,
+        onPrimaryButtonClick = { viewModel.onPrimaryButtonClick() },
+        onResetPrimaryButtonState = { viewModel.resetPrimaryButtonState() },
+        onActionClick = {
+            if (screenState.action == R.string.sign_in) {
+                navController.navigate(NavigationDestination.ContinueSignIn.route) {
+                    popUpTo(NavigationDestination.Welcome.route) {
+                        inclusive = false
+                    }
+                }
+            } else {
+                navController.navigate(NavigationDestination.ContinueSignUp.route) {
+                    popUpTo(NavigationDestination.Welcome.route) {
+                        inclusive = false
+                    }
+                }
+            }
+        }
+    )
+}
+
+@Composable
+fun EmailContentScreen(
+    modifier: Modifier = Modifier,
+    canNavigateBack: Boolean,
+    onBackClick: () -> Unit,
+    imeVisible: Boolean,
+    screenState: ScreenState,
+    emailState: String,
+    onEmailValueChange: (String) -> Unit,
+    passwordState: String,
+    onPasswordValueChange: (String) -> Unit,
+    passwordVisibility: Boolean,
+    onPasswordVisibilityToggle: () -> Unit,
+    textFieldEnabled: Boolean,
+    primaryButtonState: Resource<Unit>,
+    onPrimaryButtonClick: () -> Unit,
+    onResetPrimaryButtonState: () -> Unit,
+    onActionClick: () -> Unit,
+){
+    val context = LocalContext.current
+    val layoutDirection = LocalLayoutDirection.current
 
     Scaffold(
         topBar = {
             MarketPulseTopAppBar(
-                canNavigateBack = navController.previousBackStackEntry != null,
-                onBackClick = {
-                    navController.popBackStack()
-                }
+                canNavigateBack = canNavigateBack,
+                onBackClick = onBackClick
             )
         }
     ) { innerPadding ->
         val bottomPadding by animateDpAsState(
-            targetValue = if (imeVisible) 0.dp else innerPadding.calculateBottomPadding()
+            targetValue = if (imeVisible) 0.dp else innerPadding.calculateBottomPadding(),
+            label = "bottomPadding"
         )
         val adjustedPadding = PaddingValues(
             start = innerPadding.calculateStartPadding(layoutDirection),
@@ -119,8 +178,7 @@ fun EmailScreen(
                     .fillMaxWidth()
                     .padding(vertical = 24.dp)
                     .animateContentSize()
-                    .then(if (!imeVisible) Modifier.weight(1f) else Modifier),
-
+                .then(if (!imeVisible) Modifier.weight(1f) else Modifier),
                 horizontalAlignment = Alignment.CenterHorizontally,
                 verticalArrangement = Arrangement.Center
             ) {
@@ -151,10 +209,8 @@ fun EmailScreen(
                 OutlinedTextField(
                     modifier = Modifier.fillMaxWidth(),
                     value = emailState,
-                    enabled = textFieldState,
-                    onValueChange = {
-                        viewModel.setUserEmail(it)
-                    },
+                    enabled = textFieldEnabled,
+                    onValueChange = onEmailValueChange,
                     label = { Text("Email") },
                     keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Email)
                 )
@@ -163,10 +219,8 @@ fun EmailScreen(
                 OutlinedTextField(
                     modifier = Modifier.fillMaxWidth(),
                     value = passwordState,
-                    enabled = textFieldState,
-                    onValueChange = {
-                        viewModel.setUserPassword(it)
-                    },
+                    enabled = textFieldEnabled,
+                    onValueChange = onPasswordValueChange,
                     label = { Text("Password") },
                     visualTransformation = if (passwordVisibility) {
                         VisualTransformation.None // Muestra el texto tal cual
@@ -175,9 +229,7 @@ fun EmailScreen(
                     },
                     trailingIcon = {
                         IconButton(
-                            onClick = {
-                                passwordVisibility = !passwordVisibility
-                            }
+                            onClick = onPasswordVisibilityToggle
                         ) {
                             Icon(
                                 imageVector = if (passwordVisibility) Icons.Filled.VisibilityOff else Icons.Filled.Visibility,
@@ -188,31 +240,27 @@ fun EmailScreen(
                     keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password) // Optimiza el teclado
                 )
                 Spacer(modifier = Modifier.height(16.dp))
-                when (val currentButtonState = primaryButtonState) {
+                when (primaryButtonState) {
                     is Resource.Success -> {
-                        LaunchedEffect(Unit) {
-                            navController.navigate(NavigationDestination.Home.route) {
-                                popUpTo(NavigationDestination.Welcome.route) {
-                                    inclusive = true
-                                }
-                            }
-                        }
+                        CircularProgressIndicator(
+                            modifier = Modifier.size(40.dp),
+                            color = Color.Gray
+                        )
                     }
                     is Resource.Error -> {
-                        textFieldState = true
                         Button(
                             modifier = Modifier.height(40.dp),
-                            onClick = {
-                                viewModel.onPrimaryButtonClick()
-                            }
+                            onClick = onPrimaryButtonClick
                         ) {
                             Text(stringResource(screenState.buttonText))
                         }
-                        Toast.makeText(context, currentButtonState.message, Toast.LENGTH_SHORT).show()
-                        viewModel.resetPrimaryButtonState()
+                        val errorMessage = primaryButtonState.message
+                        LaunchedEffect(primaryButtonState) {
+                            Toast.makeText(context, errorMessage, Toast.LENGTH_SHORT).show()
+                            onResetPrimaryButtonState()
+                        }
                     }
                     is Resource.Loading -> {
-                        textFieldState = false
                         CircularProgressIndicator(
                             modifier = Modifier.size(40.dp),
                             color = Color.Gray
@@ -221,9 +269,7 @@ fun EmailScreen(
                     is Resource.Idle -> {
                         Button(
                             modifier = Modifier.height(40.dp),
-                            onClick = {
-                                viewModel.onPrimaryButtonClick()
-                            }
+                            onClick = onPrimaryButtonClick
                         ) {
                             Text(stringResource(screenState.buttonText))
                         }
@@ -238,22 +284,8 @@ fun EmailScreen(
                 Text(//tambien pude haber utilizado textbutton
                     text = stringResource(screenState.action),
                     modifier = Modifier.clickable(
-                        enabled = textFieldState,
-                        onClick = {
-                            if (screenState.action == R.string.sign_in) {
-                                navController.navigate(NavigationDestination.ContinueSignIn.route) {
-                                    popUpTo(NavigationDestination.Welcome.route) {
-                                        inclusive = false
-                                    }
-                                }
-                            } else {
-                                navController.navigate(NavigationDestination.ContinueSignUp.route) {
-                                    popUpTo(NavigationDestination.Welcome.route) {
-                                        inclusive = false
-                                    }
-                                }
-                            }
-                        }
+                        enabled = textFieldEnabled,
+                        onClick = onActionClick
                     ),
                     textAlign = TextAlign.Center,
                     fontWeight = FontWeight.Bold
@@ -267,5 +299,21 @@ fun EmailScreen(
 @Composable
 @Preview(showBackground = true)
 fun EmailScreenPreview() {
-    //EmailScreen(Modifier.fillMaxSize())
+    EmailContentScreen(
+        canNavigateBack = true,
+        onBackClick = {},
+        imeVisible = false,
+        screenState = ScreenState.SignUp,
+        emailState = "test@example.com",
+        onEmailValueChange = {},
+        passwordState = "password123",
+        onPasswordValueChange = {},
+        passwordVisibility = false,
+        onPasswordVisibilityToggle = {},
+        textFieldEnabled = true,
+        primaryButtonState = Resource.Idle,
+        onPrimaryButtonClick = {},
+        onResetPrimaryButtonState = {},
+        onActionClick = {}
+    )
 }

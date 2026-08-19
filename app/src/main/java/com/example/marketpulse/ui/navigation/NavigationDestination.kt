@@ -2,6 +2,7 @@ package com.example.marketpulse.ui.navigation
 
 sealed class NavigationDestination(internal val route: String) {
     object Onboarding : NavigationDestination(route = "onboarding")
+    object AuthGraph : NavigationDestination(route = "auth_graph")
     object Welcome : NavigationDestination(route = "welcome")
     object ContinueSignIn: NavigationDestination(route = "continue_sign_in")
     object ContinueSignUp: NavigationDestination(route = "continue_sign_up")

@@ -1,65 +1,52 @@
 package com.example.marketpulse
 
 import android.os.Bundle
+import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.activity.viewModels
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import androidx.lifecycle.viewmodel.compose.viewModel
+import com.example.marketpulse.core.AppState
+import com.example.marketpulse.ui.MainViewModel
 import com.example.marketpulse.ui.MarketPulseApp
-import com.example.marketpulse.ui.navigation.SplashViewModel
+import com.example.marketpulse.ui.navigation.NavigationDestination
 import com.example.marketpulse.ui.theme.MarketPulseTheme
+import com.google.firebase.messaging.FirebaseMessaging
 import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {
-    private val splashViewModel: SplashViewModel by viewModels()
+    private val mainViewModel: MainViewModel by viewModels()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         val splashScreen = installSplashScreen()
         super.onCreate(savedInstanceState)
+
         splashScreen.setKeepOnScreenCondition {
-            splashViewModel.startDestination.value == null
+            mainViewModel.appState.value is AppState.Loading
         }
+        
         enableEdgeToEdge()
         setContent {
             MarketPulseTheme {
-                val startDestination by splashViewModel.startDestination
+                val appState by mainViewModel.appState.collectAsStateWithLifecycle()
 
-                if(startDestination != null){
-                    MarketPulseApp(startDestination=startDestination!!)
+                when (appState) {
+                    is AppState.Loading -> { /* Se mantiene la SplashScreen */ }
+                    is AppState.OnboardingRequired -> {
+                        MarketPulseApp(startDestination = NavigationDestination.Onboarding.route)
+                    }
+                    is AppState.Authenticated -> {
+                        MarketPulseApp(startDestination = NavigationDestination.Home.route)
+                    }
+                    is AppState.Unauthenticated -> {
+                        MarketPulseApp(startDestination = NavigationDestination.AuthGraph.route)
+                    }
                 }
             }
         }
     }
 }
-/*
-@AndroidEntryPoint
-class MainActivity : ComponentActivity() {
-    private val splashViewModel: SplashViewModel by viewModels()
-
-    override fun onCreate(savedInstanceState: Bundle?) {
-        val splashScreen = installSplashScreen()
-        super.onCreate(savedInstanceState)
-        splashScreen.setKeepOnScreenCondition {
-            splashViewModel.startDestination.value == null
-        }
-        enableEdgeToEdge()
-        setContent {
-            MarketPulseTheme {
-                val startDestination by splashViewModel.startDestination
-                    .collectAsStateWithLifecycle()
-                if(startDestination != null){
-                    MarketPulseApp(startDestination=startDestination!!)
-                }
-            }
-        }
-    }
-}
-*/
-
-

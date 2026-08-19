@@ -68,14 +68,13 @@ fun OnBoardingScreen(
                     onClick = {
                         viewModel.saveOnboardingState(true)
                         navController.popBackStack()
-                        navController.navigate("auth_graph")
+                        navController.navigate(NavigationDestination.AuthGraph.route)
                     },
                 ) {
                     Text(text = stringResource(R.string.onboarding_finish))
                 }
             }
         }
-
     }
 }
 
