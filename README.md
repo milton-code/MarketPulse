@@ -33,4 +33,8 @@ The app communicates with an API developed using Spring Boot (MarketPulseBackend
 
 ![App Screenshot](https://github.com/milton-code/MarketPulse/blob/main/images/1.jpeg)
 ![App Screenshot](https://github.com/milton-code/MarketPulse/blob/main/images/1-1.jpeg)
+![App Screenshot](https://github.com/milton-code/MarketPulse/blob/main/images/1-2.jpeg)
+![App Screenshot](https://github.com/milton-code/MarketPulse/blob/main/images/3.jpeg)
+![App Screenshot](https://github.com/milton-code/MarketPulse/blob/main/images/4.jpeg)
+![App Screenshot](https://github.com/milton-code/MarketPulse/blob/main/images/5.jpeg)
 
